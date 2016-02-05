@@ -39,7 +39,9 @@ object RelayvatrBuild extends Build {
 
   lazy val root = project.in(file("."))
     .settings(dependencies(
-      "org.scalatest" %% "scalatest" % "2.2.5" % "test"
+      "org.scalatest" %% "scalatest" % "2.2.5" % "test",
+      "io.reactivex" %% "rxscala" % "0.26.0",
+      "com.typesafe.akka" %% "akka-actor" % "2.4.1"
     ))
     .settings(baseSettings: _*)
 
