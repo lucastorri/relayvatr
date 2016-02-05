@@ -4,12 +4,12 @@ import java.util.concurrent.atomic.AtomicLong
 
 import relayvatr.event._
 import relayvatr.exception.{InvalidFloorException, UnexpectedEventException}
-import relayvatr.scheduler.SystemScheduler
+import relayvatr.scheduler.Scheduler
 import rx.lang.scala.{Observable, Subject}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
-class BasicControl(scheduler: SystemScheduler)(implicit exec: ExecutionContext) extends Control {
+class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extends Control {
 
   private val counter = new AtomicLong()
 

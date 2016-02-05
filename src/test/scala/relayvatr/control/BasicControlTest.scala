@@ -2,7 +2,7 @@ package relayvatr.control
 
 import relayvatr._
 import relayvatr.event.{Action, ActionEvent, SystemEvent, SystemShutdown}
-import relayvatr.scheduler.SystemScheduler
+import relayvatr.scheduler.Scheduler
 import rx.lang.scala.Observable
 import rx.lang.scala.subjects.ReplaySubject
 
@@ -20,7 +20,7 @@ class BasicControlTest extends Test {
     ))
   }
 
-  object NoOpScheduler extends SystemScheduler {
+  object NoOpScheduler extends Scheduler {
     override def events: Observable[ActionEvent] = Observable.just()
     override def shutdown(): Unit = {}
     override def handle(action: Action): Unit = {}

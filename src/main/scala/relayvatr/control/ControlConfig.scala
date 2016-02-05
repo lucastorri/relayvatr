@@ -1,5 +1,5 @@
 package relayvatr.control
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.FiniteDuration
 
-case class ControlConfig(elevators: Int, travelTimePerFloor: Duration, limit: LimitSensor)
+case class ControlConfig(elevators: Int, travelTimePerFloor: FiniteDuration, limit: LimitSensor)

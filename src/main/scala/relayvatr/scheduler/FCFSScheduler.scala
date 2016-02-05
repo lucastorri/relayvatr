@@ -5,7 +5,7 @@ import relayvatr.event._
 
 import scala.collection.mutable
 
-trait FCFSScheduler extends SystemScheduler with EventSubject {
+trait FCFSScheduler extends Scheduler with EventSubject {
 
   def config: ControlConfig
 
