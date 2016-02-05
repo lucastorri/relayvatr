@@ -1,10 +1,10 @@
 package relayvatr.scheduler
 
 import akka.actor.{Actor, ActorSystem, Props}
-import relayvatr.control.ControlSystemConfig
+import relayvatr.control.ControlConfig
 import relayvatr.event._
 
-class AsyncFCFSScheduler(val config: ControlSystemConfig)(implicit system: ActorSystem) extends FCFSScheduler {
+class AsyncFCFSScheduler(val config: ControlConfig)(implicit system: ActorSystem) extends FCFSScheduler {
 
   private val handler = system.actorOf(Props(new Handler))
 

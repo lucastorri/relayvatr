@@ -3,13 +3,13 @@ package relayvatr.control
 import java.util.concurrent.atomic.AtomicLong
 
 import relayvatr.event._
-import relayvatr.exception.UnexpectedEventException
+import relayvatr.exception.{InvalidFloorException, UnexpectedEventException}
 import relayvatr.scheduler.SystemScheduler
 import rx.lang.scala.{Observable, Subject}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
-class BasicControlSystem(scheduler: SystemScheduler)(implicit exec: ExecutionContext) extends ControlSystem {
+class BasicControl(scheduler: SystemScheduler)(implicit exec: ExecutionContext) extends Control {
 
   private val counter = new AtomicLong()
 
@@ -20,7 +20,8 @@ class BasicControlSystem(scheduler: SystemScheduler)(implicit exec: ExecutionCon
     val promise = Promise[Elevator]()
     val id = subscribe {
       case ev: ElevatorArrived => promise.success(new ElevatorProxy(ev.elevatorId))
-      case ev => promise.failure(new UnexpectedEventException(ev))
+      case ev: InvalidFloor => promise.failure(InvalidFloorException(ev.floor))
+      case ev => promise.failure(UnexpectedEventException(ev))
     }
     scheduler.handle(Call(id, currentFloor, direction))
     promise.future
@@ -50,6 +51,7 @@ class BasicControlSystem(scheduler: SystemScheduler)(implicit exec: ExecutionCon
       val promise = Promise[Unit]()
       val actionId = subscribe {
         case ev: ElevatorArrived => promise.success(())
+        case ev: InvalidFloor => promise.failure(InvalidFloorException(ev.floor))
         case ev => promise.failure(new UnexpectedEventException(ev))
       }
       scheduler.handle(GoTo(actionId, id, n))

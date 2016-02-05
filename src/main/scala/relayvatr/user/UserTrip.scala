@@ -1,18 +1,18 @@
 package relayvatr.user
 
-import relayvatr.control.{ControlSystem, Direction, Down, Up}
+import relayvatr.control.{Control, Direction, Down, Up}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait UserTrip {
-  def on(system: ControlSystem): Future[Unit]
+  def on(system: Control): Future[Unit]
 }
 
 case class SingleTrip(startingFloor: Int, destinationFloor: Int)(implicit exec: ExecutionContext) extends UserTrip {
 
-  override def on(system: ControlSystem): Future[Unit] = {
+  override def on(control: Control): Future[Unit] = {
     for {
-      elevator <- system.call(startingFloor, direction)
+      elevator <- control.call(startingFloor, direction)
       arrival <- elevator.goTo(destinationFloor)
     } yield ()
   }

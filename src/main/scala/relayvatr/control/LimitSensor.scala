@@ -7,5 +7,7 @@ trait LimitSensor {
 }
 
 class RangeLimitSensor(firstFloor: Int, lastFloor: Int) extends LimitSensor {
+
   override def canGoTo(floor: Int): Boolean = floor >= firstFloor && floor <= lastFloor
+
 }

@@ -1,4 +1,4 @@
-import relayvatr.control.ControlSystem
+import relayvatr.control.Control
 import relayvatr.event.SystemEvent
 import relayvatr.user.UserTrip
 
@@ -8,7 +8,7 @@ import scala.concurrent.duration._
 
 package object relayvatr {
 
-  implicit class EventsCollector(system: ControlSystem)(implicit exec: ExecutionContext) {
+  implicit class EventsCollector(system: Control)(implicit exec: ExecutionContext) {
 
     private val collected = mutable.ListBuffer.empty[SystemEvent]
     system.events.subscribe(collected += _)

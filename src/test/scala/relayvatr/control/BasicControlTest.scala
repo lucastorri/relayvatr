@@ -6,11 +6,11 @@ import relayvatr.scheduler.SystemScheduler
 import rx.lang.scala.Observable
 import rx.lang.scala.subjects.ReplaySubject
 
-class BasicControlSystemTest extends Test {
+class BasicControlTest extends Test {
 
   it must "generate a shutdown event" in {
     val events = ReplaySubject[SystemEvent]()
-    val system = new BasicControlSystem(NoOpScheduler)
+    val system = new BasicControl(NoOpScheduler)
 
     system.events.subscribe(events)
     system.shutdown()
