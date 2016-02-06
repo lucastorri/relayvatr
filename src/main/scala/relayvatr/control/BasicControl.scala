@@ -1,5 +1,6 @@
 package relayvatr.control
 
+import com.typesafe.scalalogging.StrictLogging
 import relayvatr.event._
 import relayvatr.exception.InvalidFloorException
 import relayvatr.scheduler.Scheduler
@@ -8,7 +9,7 @@ import rx.lang.scala.{Observable, Subject}
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
-class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extends Control {
+class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extends Control with StrictLogging {
 
   private val subject = Subject[SystemEvent]()
   private val awaitingPassengers = mutable.HashMap.empty[Int, FloorQueue]
@@ -22,7 +23,10 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
   }
 
   private val queueSubscription = scheduler.events.subscribe(queuesHandler)
-  private val relaySubscription = scheduler.events.subscribe(ev => subject.onNext(ev))
+  private val relaySubscription = scheduler.events.subscribe(
+    ev => { subject.onNext(ev); logger.debug(s"Scheduler event $ev") },
+    ex => logger.error("Scheduler error", ex),
+    () => logger.debug("Scheduler events closed"))
 
   override def call(floor: Int, direction: Direction): Future[Elevator] = {
     val promise = Promise[Elevator]()
@@ -31,7 +35,9 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
       scheduler.handle(call)
       queue(floor).add(call, promise)
     } catch {
-      case e: InvalidFloorException => promise.failure(e)
+      case e: InvalidFloorException =>
+        logger.error("Invalid floor", e)
+        promise.failure(e)
     }
     promise.future
   }
@@ -60,18 +66,21 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
         scheduler.handle(GoTo(id, floor))
         riders(id).add(promise, floor)
       } catch {
-        case e: InvalidFloorException => promise.failure(e)
+        case e: InvalidFloorException =>
+          logger.error("Invalid floor", e)
+          promise.failure(e)
       }
       promise.future
     }
   }
 
-  class FloorQueue {
+  private class FloorQueue {
+
     private val goingUp = mutable.ListBuffer.empty[Promise[Elevator]]
     private val goingDown = mutable.ListBuffer.empty[Promise[Elevator]]
 
     def add(call: Call, promise: Promise[Elevator]): Unit = {
-      queue(call.direction) += promise
+      queue(call.direction).append(promise)
     }
 
     def join(direction: Direction, elevator: Elevator): Unit = {
@@ -86,17 +95,20 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
 
   }
 
-  class ElevatorSet {
+  private class ElevatorSet {
 
     private val floors = mutable.HashMap.empty[Int, Set[Promise[Unit]]]
 
-    def arrive(elevatorFloor: Int): Unit = {
-      floors(elevatorFloor).foreach(_.success(()))
-      floors.remove(elevatorFloor)
-    }
-
     def add(passenger: Promise[Unit], destinationFloor: Int): Unit = {
       floors(destinationFloor) = floors.getOrElse(destinationFloor, Set.empty) + passenger
+    }
+
+    def arrive(elevatorFloor: Int): Unit = {
+      for {
+        floor <- floors.get(elevatorFloor)
+        arrival <- floor
+      } arrival.success(())
+      floors.remove(elevatorFloor)
     }
 
   }

@@ -23,16 +23,16 @@ case class SingleTrip(startingFloor: Int, destinationFloor: Int)(implicit exec: 
 
 }
 
-case class CombinedTrips(trips: Set[SingleTrip])(implicit exec: ExecutionContext) extends UserTrip {
+case class CombinedTrips(each: Set[SingleTrip])(implicit exec: ExecutionContext) extends UserTrip {
 
   override def on(control: Control): Future[Unit] = {
-    Future.sequence(trips.map(_.on(control))).map(_ => ())
+    Future.sequence(each.map(_.on(control))).map(_ => ())
   }
 
 }
 
 object CombinedTrips {
 
-  def apply(trips: SingleTrip*)(implicit exec: ExecutionContext): CombinedTrips = apply(trips.toSet)
+  def apply(each: SingleTrip*)(implicit exec: ExecutionContext): CombinedTrips = apply(each.toSet)
 
 }

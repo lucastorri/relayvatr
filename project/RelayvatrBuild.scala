@@ -41,7 +41,9 @@ object RelayvatrBuild extends Build {
     .settings(dependencies(
       "org.scalatest" %% "scalatest" % "2.2.5" % "test",
       "io.reactivex" %% "rxscala" % "0.26.0",
-      "com.typesafe.akka" %% "akka-actor" % "2.4.1"
+      "com.typesafe.akka" %% "akka-actor" % "2.4.1",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
+      "ch.qos.logback" % "logback-classic" % "1.1.3"
     ))
     .settings(baseSettings: _*)
 
