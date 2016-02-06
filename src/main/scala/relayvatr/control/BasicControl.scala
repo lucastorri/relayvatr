@@ -13,7 +13,7 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
 
   private val subject = Subject[SystemEvent]()
   private val awaitingPassengers = mutable.HashMap.empty[Int, FloorQueue]
-  private val travelingPassengers = mutable.HashMap.empty[String, ElevatorSet]
+  private val travelingPassengers = mutable.HashMap.empty[String, ElevatorCar]
 
   private val queuesHandler: (ElevatorEvent) => Unit = {
     case ElevatorArrived(elevatorId, elevatorFloor, elevatorDirection) =>
@@ -42,12 +42,6 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
     promise.future
   }
 
-  private def queue(currentFloor: Int): FloorQueue =
-    awaitingPassengers.getOrElseUpdate(currentFloor, new FloorQueue)
-
-  private def riders(elevatorId: String): ElevatorSet =
-    travelingPassengers.getOrElseUpdate(elevatorId, new ElevatorSet)
-
   override def events: Observable[SystemEvent] = subject
 
   override def shutdown(): Future[Unit] = {
@@ -58,6 +52,12 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
     subject.onCompleted()
     Future.successful(())
   }
+
+  private def queue(currentFloor: Int): FloorQueue =
+    awaitingPassengers.getOrElseUpdate(currentFloor, new FloorQueue)
+
+  private def riders(elevatorId: String): ElevatorCar =
+    travelingPassengers.getOrElseUpdate(elevatorId, new ElevatorCar)
 
   private class ElevatorProxy(val id: String) extends Elevator {
     override def goTo(floor: Int): Future[Unit] = {
@@ -95,7 +95,7 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
 
   }
 
-  private class ElevatorSet {
+  private class ElevatorCar {
 
     private val floors = mutable.HashMap.empty[Int, Set[Promise[Unit]]]
 

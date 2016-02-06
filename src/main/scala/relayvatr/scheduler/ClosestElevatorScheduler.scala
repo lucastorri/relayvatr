@@ -28,14 +28,14 @@ class ClosestElevatorScheduler(
     case _ => handler ! action
   }
 
-  private def isInvalidFloor(floor: Int): Boolean =
-    !config.limit.canGoTo(floor)
-
   override def shutdown(): Unit = {
     clockSubscription.unsubscribe()
     system.stop(handler)
     subject.onCompleted()
   }
+
+  private def isInvalidFloor(floor: Int): Boolean =
+    !config.limit.canGoTo(floor)
 
   private class Handler extends Actor {
 
