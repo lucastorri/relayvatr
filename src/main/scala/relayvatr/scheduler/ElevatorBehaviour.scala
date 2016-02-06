@@ -10,7 +10,7 @@ trait ElevatorBehaviour {
 
   def press(floor: Int): Unit
 
-  def distanceOf(call: Call): CallDistance
+  def distanceTo(call: Call): CallDistance
 
   def move(): Option[ElevatorEvent]
 

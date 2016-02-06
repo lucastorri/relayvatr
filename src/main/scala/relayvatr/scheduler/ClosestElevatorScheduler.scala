@@ -56,7 +56,7 @@ class ClosestElevatorScheduler(
 
     def answeredToCall(call: Call): Boolean = {
       val (elevator, distance) = elevators
-        .map(elevator => elevator -> elevator.distanceOf(call))
+        .map(elevator => elevator -> elevator.distanceTo(call))
         .sortBy { case (_, d) => d }
         .head
 

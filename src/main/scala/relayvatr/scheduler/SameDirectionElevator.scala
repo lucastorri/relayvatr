@@ -22,7 +22,7 @@ class SameDirectionElevator(val id: String) extends ElevatorBehaviour {
     pressedFloors.add(floor)
   }
 
-  override def distanceOf(call: Call): CallDistance = {
+  override def distanceTo(call: Call): CallDistance = {
     if (canAnswer.isDefinedAt(call)) OnTheWay(math.abs(call.floor - currentFloor))
     else CanNotAnswer
   }
