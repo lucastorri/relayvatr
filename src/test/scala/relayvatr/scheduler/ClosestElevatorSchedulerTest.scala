@@ -10,14 +10,14 @@ import scala.concurrent.duration._
 class ClosestElevatorSchedulerTest extends Test {
 
   val clock = Observable.interval(10.millis).map(_ => ())
-  val config = ControlConfig(1, new RangeLimitSensor(0, 5))
+  val config = ControlConfig(2, new RangeLimitSensor(0, 5))
   val control = new BasicControl(new ClosestElevatorScheduler(config, clock, new SameDirectionElevator(_)))
 
   val trips = CombinedTrips(
-    SingleTrip(5, 0),
     SingleTrip(0, 3),
     SingleTrip(1, 4),
-    SingleTrip(2, 5))
+    SingleTrip(2, 5),
+    SingleTrip(5, 0))
 
   val events = control.execute(trips)
 

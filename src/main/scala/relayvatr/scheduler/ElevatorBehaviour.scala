@@ -6,6 +6,8 @@ trait ElevatorBehaviour {
 
   def id: String
 
+  def floor: Int
+
   def answer(call: Call): Unit
 
   def press(floor: Int): Unit

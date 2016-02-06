@@ -1,6 +1,7 @@
 package relayvatr.scheduler
 
 import akka.actor.{Actor, ActorSystem, Props}
+import com.typesafe.scalalogging.StrictLogging
 import relayvatr.control._
 import relayvatr.event._
 import relayvatr.exception.InvalidFloorException
@@ -12,7 +13,7 @@ class ClosestElevatorScheduler(
   config: ControlConfig,
   clock: Observable[Unit],
   elevatorFactory: (String) => ElevatorBehaviour
-)(implicit system: ActorSystem) extends Scheduler {
+)(implicit system: ActorSystem) extends Scheduler with StrictLogging {
 
   private val handler = system.actorOf(Props(new Handler))
   private val subject = Subject[ElevatorEvent]()
@@ -22,10 +23,13 @@ class ClosestElevatorScheduler(
 
   override def events: Observable[ElevatorEvent] = subject
 
-  override def handle(action: Action): Unit = action match {
-    case call: Call if isInvalidFloor(call.floor) => throw new InvalidFloorException(call.floor)
-    case goto: GoTo if isInvalidFloor(goto.floor) => throw new InvalidFloorException(goto.floor)
-    case _ => handler ! action
+  override def handle(action: Action): Unit = {
+    logger.debug(s"Action $action")
+    action match {
+      case call: Call if isInvalidFloor(call.floor) => throw new InvalidFloorException(call.floor)
+      case goto: GoTo if isInvalidFloor(goto.floor) => throw new InvalidFloorException(goto.floor)
+      case _ => handler ! action
+    }
   }
 
   override def shutdown(): Unit = {
@@ -60,8 +64,13 @@ class ClosestElevatorScheduler(
         .sortBy { case (_, d) => d }
         .head
 
-      if (distance.canAnswer) { elevator.answer(call); true }
-      else { false }
+      if (distance.canAnswer) {
+        logger.debug(s"Assigning $call to ${elevator.id}")
+        elevator.answer(call)
+        true
+      } else {
+        false
+      }
     }
 
   }
