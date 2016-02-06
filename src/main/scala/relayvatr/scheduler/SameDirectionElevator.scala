@@ -36,7 +36,7 @@ class SameDirectionElevator(val id: String) extends ElevatorBehaviour {
         val newDirection = directionOf(destinationFloor)
         currentDirection = Some(newDirection)
         pendingCalls.remove(0)
-        val (same, opposite) = pendingCalls.partition(onSameDirection)
+        val (same, opposite) = pendingCalls.partition(isOnSameDirection)
         pendingCalls = opposite
         press(destinationFloor)
         same.foreach(call => press(call.floor))
@@ -72,7 +72,7 @@ class SameDirectionElevator(val id: String) extends ElevatorBehaviour {
     if (floor > currentFloor) Up else Down
   }
 
-  private def onSameDirection(call: Call): Boolean = {
+  private def isOnSameDirection(call: Call): Boolean = {
     currentDirection match {
       case Some(direction) => call.direction == direction && direction.isOnDirection(currentFloor, call.floor)
       case None => false
