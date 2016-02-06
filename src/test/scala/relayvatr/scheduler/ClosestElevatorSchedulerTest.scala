@@ -7,11 +7,11 @@ import relayvatr.user.{CombinedTrips, SingleTrip}
 import rx.lang.scala.Observable
 import scala.concurrent.duration._
 
-class SimulationSchedulerTest extends Test {
+class ClosestElevatorSchedulerTest extends Test {
 
   val clock = Observable.interval(10.millis).map(_ => ())
   val config = ControlConfig(1, new RangeLimitSensor(0, 5))
-  val control = new BasicControl(new SimulationScheduler(config, clock))
+  val control = new BasicControl(new ClosestElevatorScheduler(config, clock, new SameDirectionElevator(_)))
 
   val trips = CombinedTrips(
     SingleTrip(5, 0),

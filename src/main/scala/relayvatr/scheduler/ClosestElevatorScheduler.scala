@@ -8,12 +8,16 @@ import rx.lang.scala.{Observable, Subject}
 
 import scala.collection.mutable
 
-class SimulationScheduler(config: ControlConfig, clock: Observable[Unit])(implicit system: ActorSystem) extends Scheduler {
+class ClosestElevatorScheduler(
+  config: ControlConfig,
+  clock: Observable[Unit],
+  elevatorFactory: (String) => ElevatorBehaviour
+)(implicit system: ActorSystem) extends Scheduler {
 
   private val handler = system.actorOf(Props(new Handler))
   private val subject = Subject[ElevatorEvent]()
   private var awaitingCalls = mutable.ListBuffer.empty[Call]
-  private val elevators = (1 to config.elevators).map(i => new SimulationElevator(s"elevator-$i"))
+  private val elevators = (1 to config.elevators).map(i => elevatorFactory(s"elevator-$i"))
   private val clockSubscription = clock.subscribe(_ => handler ! 'clock)
 
   override def events: Observable[ElevatorEvent] = subject

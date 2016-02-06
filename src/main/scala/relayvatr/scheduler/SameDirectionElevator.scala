@@ -6,34 +6,28 @@ import relayvatr.event._
 
 import scala.collection.mutable
 
-class SimulationElevator(val id: String) {
+
+class SameDirectionElevator(val id: String) extends ElevatorBehaviour {
 
   private var currentFloor = 0
   private var currentDirection = Option.empty[Direction]
   private val pressedFloors = mutable.HashSet.empty[Int]
   private var pendingCalls = mutable.ListBuffer.empty[Call]
-  private var noStop = false
 
-  def answer(call: Call): Unit = {
+  override def answer(call: Call): Unit = {
     pendingCalls += call
   }
 
-  def distanceOf(call: Call): CallDistance = {
+  override def press(floor: Int): Unit = {
+    pressedFloors.add(floor)
+  }
+
+  override def distanceOf(call: Call): CallDistance = {
     if (canAnswer.isDefinedAt(call)) OnTheWay(math.abs(call.floor - currentFloor))
     else CanNotAnswer
   }
 
-  private def canAnswer: PartialFunction[Call, Unit] = {
-    case _ if currentDirection.isEmpty && pendingCalls.isEmpty =>
-    case Call(floor, _) if currentDirection.isEmpty && directionOf(floor) == pendingCalls.head.direction =>
-    case Call(floor, _) if currentDirection.exists(_.isOnDirection(currentFloor, floor)) =>
-  }
-
-  private def directionOf(floor: Int): Direction = {
-    if (floor > currentFloor) Up else Down
-  }
-
-  def move(): Option[ElevatorEvent] = Option {
+  override def move(): Option[ElevatorEvent] = Option {
     currentDirection match {
       case None if pendingCalls.isEmpty =>
         null
@@ -68,15 +62,21 @@ class SimulationElevator(val id: String) {
     }
   }
 
+  private def canAnswer: PartialFunction[Call, Unit] = {
+    case _ if currentDirection.isEmpty && pendingCalls.isEmpty =>
+    case Call(floor, _) if currentDirection.isEmpty && directionOf(floor) == pendingCalls.head.direction =>
+    case Call(floor, _) if currentDirection.exists(_.isOnDirection(currentFloor, floor)) =>
+  }
+
+  private def directionOf(floor: Int): Direction = {
+    if (floor > currentFloor) Up else Down
+  }
+
   private def onSameDirection(call: Call): Boolean = {
     currentDirection match {
       case Some(direction) => call.direction == direction && direction.isOnDirection(currentFloor, call.floor)
       case None => false
     }
-  }
-
-  def press(floor: Int): Unit = {
-    pressedFloors.add(floor)
   }
 
 }
