@@ -1,6 +1,6 @@
 package relayvatr
 
-import akka.actor.ActorSystem
+import akka.actor.{Terminated, ActorSystem}
 import relayvatr.control.{BasicControl, ControlConfig, RangeLimitSensor}
 import relayvatr.scheduler.{ClosestElevatorScheduler, SameDirectionElevator}
 import relayvatr.user.SingleTrip
@@ -27,6 +27,11 @@ object Main extends App {
 
   val control = new BasicControl(new ClosestElevatorScheduler(config, clock, new SameDirectionElevator(_, firstFloor)))
 
+  sys.addShutdownHook {
+    log("Going down")
+    Await.ready(shutdown(), 5.seconds)
+  }
+
   log("Starting user interaction")
 
   val users = Observable.interval(500.millis).map { _ =>
@@ -43,13 +48,15 @@ object Main extends App {
 
   log("Users are gone")
 
-  control.shutdown()
-  system.terminate()
-
   log("Done")
 
   def randomFloor: Int = Random.nextInt(topFloor + 1)
 
   def log(msg: String): Unit = println(s"-- $msg")
+
+  def shutdown(): Future[Terminated] = {
+    control.shutdown()
+    system.terminate()
+  }
 
 }
