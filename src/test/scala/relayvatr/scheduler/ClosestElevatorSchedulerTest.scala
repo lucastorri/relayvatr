@@ -14,10 +14,10 @@ class ClosestElevatorSchedulerTest extends Test {
   val control = new BasicControl(new ClosestElevatorScheduler(config, clock, new SameDirectionElevator(_)))
 
   val trips = CombinedTrips(
+    SingleTrip(5, 0),
     SingleTrip(0, 3),
     SingleTrip(1, 4),
-    SingleTrip(2, 5),
-    SingleTrip(5, 0))
+    SingleTrip(2, 5))
 
   val events = control.execute(trips)
 

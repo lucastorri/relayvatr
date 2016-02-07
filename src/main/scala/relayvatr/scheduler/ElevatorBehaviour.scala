@@ -1,5 +1,6 @@
 package relayvatr.scheduler
 
+import relayvatr.control.Direction
 import relayvatr.event.{ElevatorEvent, Call}
 
 trait ElevatorBehaviour {
@@ -7,6 +8,8 @@ trait ElevatorBehaviour {
   def id: String
 
   def floor: Int
+
+  def direction: Option[Direction]
 
   def answer(call: Call): Unit
 
