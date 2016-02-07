@@ -12,6 +12,8 @@ import scala.util.Random
 
 object Main extends App {
 
+  log("Configuring control")
+
   implicit val exec = scala.concurrent.ExecutionContext.Implicits.global
   implicit val system = ActorSystem("test-system")
 
@@ -25,6 +27,8 @@ object Main extends App {
 
   val control = new BasicControl(new ClosestElevatorScheduler(config, clock, new SameDirectionElevator(_, firstFloor)))
 
+  log("Starting user interaction")
+
   val users = Observable.interval(500.millis).map { _ =>
     val startingFloor = randomFloor
     val destinationFloor = randomFloor
@@ -32,8 +36,20 @@ object Main extends App {
   }
 
   val arrivals = users.take(totalUsers).map(_.on(control)).toBlocking.toList
+
+  log("All users submitted")
+
   Await.ready(Future.sequence(arrivals), Duration.Inf)
 
+  log("Users are gone")
+
+  control.shutdown()
+  system.terminate()
+
+  log("Done")
+
   def randomFloor: Int = Random.nextInt(topFloor + 1)
+
+  def log(msg: String): Unit = println(s"-- $msg")
 
 }
