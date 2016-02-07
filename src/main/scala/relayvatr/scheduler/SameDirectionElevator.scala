@@ -62,8 +62,6 @@ class SameDirectionElevator(val id: String, initialFloor: Int = 0) extends Eleva
           arrive(direction)
         } else if (areThereCallsOn(direction)) {
           arrive(direction)
-        } else if (pendingCalls.nonEmpty) {
-          handleNextPending()
         } else {
           null
         }
