@@ -24,10 +24,10 @@ class SameDirectionElevator(val id: String, initialFloor: Int = 0) extends Eleva
     if (newDirection.isEmpty && call.floor != currentFloor) {
       val direction = directionOf(call.floor)
       newDirection = Some(direction)
-      addPressed(call.floor)
       logger.debug(s"Going $direction on $id")
     }
     pendingCalls.append(call)
+    if (call.floor != currentFloor) addPressed(call.floor)
     logger.debug(s"Pending on $id: ${pendingCalls.mkString(", ")}")
   }
 
