@@ -31,10 +31,10 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
 
   override def call(floor: Int, direction: Direction): Future[Elevator] = {
     val promise = Promise[Elevator]()
+    val call = Call(floor, direction)
     try {
-      val call = Call(floor, direction)
-      scheduler.handle(call)
       queue(floor).add(call, promise)
+      scheduler.handle(call)
     } catch {
       case e: InvalidFloorException =>
         logger.error("Invalid floor", e)

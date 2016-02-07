@@ -40,11 +40,11 @@ object Main extends App {
     SingleTrip(startingFloor, destinationFloor)
   }.filter(trip => trip.startingFloor != trip.destinationFloor)
 
-  val arrivals = users.take(totalUsers).map(_.on(control)).toBlocking.toList
+  val arrivals = users.take(totalUsers).map(trip => trip -> trip.on(control)).toBlocking.toList
 
   log("All users submitted")
 
-  Await.ready(Future.sequence(arrivals), Duration.Inf)
+  Await.ready(Future.sequence(arrivals.map(_._2)), Duration.Inf)
 
   log("Users are gone")
 
@@ -56,6 +56,8 @@ object Main extends App {
 
   def shutdown(): Future[Terminated] = {
     control.shutdown()
+    val missingUsers = arrivals.collect { case (trip, result) if !result.isCompleted => trip }
+    missingUsers.foreach(trip => log(s"Missing ${trip.name} [ ${trip.startingFloor} -> ${trip.destinationFloor} ]"))
     system.terminate()
   }
 
