@@ -21,8 +21,10 @@ object Main extends App {
   val topFloor = 10
   val elevators = 3
   val totalUsers = 10
+  val clockInterval = 500.millis
+  val intervalBetweenUsers = 500.millis
 
-  val clock = Observable.interval(500.millis).map(_ => log("*** *** ***"))
+  val clock = Observable.interval(clockInterval).map(_ => log("*** *** ***"))
   val config = ControlConfig(elevators, new RangeLimitSensor(firstFloor, topFloor))
 
   val control = new BasicControl(new ClosestElevatorScheduler(config, clock, new SameDirectionElevator(_, firstFloor)))
@@ -34,7 +36,7 @@ object Main extends App {
 
   log("Starting user interaction")
 
-  val users = Observable.interval(500.millis).map { _ =>
+  val users = Observable.interval(intervalBetweenUsers).map { _ =>
     val startingFloor = randomFloor
     val destinationFloor = randomFloor
     SingleTrip(startingFloor, destinationFloor)
