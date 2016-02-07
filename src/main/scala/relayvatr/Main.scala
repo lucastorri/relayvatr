@@ -18,8 +18,8 @@ object Main extends App {
   implicit val system = ActorSystem("test-system")
 
   val firstFloor = 0
-  val topFloor = 50
-  val elevators = 10
+  val topFloor = 60
+  val elevators = 20
   val totalUsers = 1000
   val clockInterval = 100.millis
   val intervalBetweenUsers = 10.millis
