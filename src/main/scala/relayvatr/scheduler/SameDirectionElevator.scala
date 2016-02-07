@@ -8,9 +8,9 @@ import relayvatr.event._
 import scala.collection.mutable
 
 
-class SameDirectionElevator(val id: String) extends ElevatorBehaviour with StrictLogging {
+class SameDirectionElevator(val id: String, initialFloor: Int = 0) extends ElevatorBehaviour with StrictLogging {
 
-  private var currentFloor = 0
+  private var currentFloor = initialFloor
   private var currentDirection = Option.empty[Direction]
   private var newDirection = Option.empty[Direction]
   private val pressedFloors = mutable.HashSet.empty[Int]
