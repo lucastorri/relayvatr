@@ -1,7 +1,7 @@
 package relayvatr.scheduler
 
 import relayvatr.control.Direction
-import relayvatr.event.{ElevatorEvent, Call}
+import relayvatr.event.{Call, ElevatorEvent}
 
 trait ElevatorBehaviour {
 
