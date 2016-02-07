@@ -28,10 +28,8 @@ object Main extends App {
   val control = new BasicControl(new ClosestElevatorScheduler(config, clock, new SameDirectionElevator(_, firstFloor)))
 
   sys.addShutdownHook {
-    if (!control.status.running) {
-      log("Going down")
-      Await.ready(shutdown(), 5.seconds)
-    }
+    log("Going down")
+    Await.ready(shutdown(), 5.seconds)
   }
 
   log("Starting user interaction")
