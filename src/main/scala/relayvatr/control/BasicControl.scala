@@ -14,6 +14,7 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
   private val subject = Subject[SystemEvent]()
   private val awaitingPassengers = mutable.HashMap.empty[Int, FloorQueue]
   private val travelingPassengers = mutable.HashMap.empty[String, ElevatorCar]
+  private var running = true
 
   private val queuesHandler: (ElevatorEvent) => Unit = {
     case ElevatorArrived(elevatorId, elevatorFloor, elevatorDirection) =>
@@ -42,6 +43,8 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
     promise.future
   }
 
+  override def status: ControlStatus = ControlStatus(running, scheduler.status)
+
   override def events: Observable[SystemEvent] = subject
 
   override def shutdown(): Future[Unit] = {
@@ -50,6 +53,7 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
     relaySubscription.unsubscribe()
     subject.onNext(SystemShutdown)
     subject.onCompleted()
+    running = false
     Future.successful(())
   }
 

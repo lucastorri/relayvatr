@@ -21,6 +21,9 @@ class ClosestElevatorScheduler(
   private val elevators = (1 to config.elevators).map(i => elevatorFactory(s"elevator-$i"))
   private val clockSubscription = clock.subscribe(_ => handler ! 'clock)
 
+  override def status: Set[ElevatorStatus] =
+    elevators.map(e => ElevatorStatus(e.floor, e.direction)).toSet
+
   override def events: Observable[ElevatorEvent] = subject
 
   override def handle(action: Action): Unit = {

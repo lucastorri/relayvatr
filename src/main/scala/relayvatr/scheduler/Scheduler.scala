@@ -1,9 +1,12 @@
 package relayvatr.scheduler
 
+import relayvatr.control.ElevatorStatus
 import relayvatr.event._
 import rx.lang.scala.Observable
 
 trait Scheduler {
+
+  def status: Set[ElevatorStatus]
 
   def events: Observable[ElevatorEvent]
 

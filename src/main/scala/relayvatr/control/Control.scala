@@ -11,6 +11,8 @@ trait Control {
 
   def events: Observable[SystemEvent]
 
+  def status: ControlStatus
+
   def shutdown(): Future[Unit]
 
 }
