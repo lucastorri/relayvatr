@@ -18,11 +18,11 @@ object Main extends App {
   implicit val system = ActorSystem("test-system")
 
   val firstFloor = 0
-  val topFloor = 10
-  val elevators = 3
-  val totalUsers = 10
-  val clockInterval = 500.millis
-  val intervalBetweenUsers = 500.millis
+  val topFloor = 50
+  val elevators = 10
+  val totalUsers = 1000
+  val clockInterval = 100.millis
+  val intervalBetweenUsers = 10.millis
 
   val clock = Observable.interval(clockInterval).map(_ => log("*** *** ***"))
   val config = ControlConfig(elevators, new RangeLimitSensor(firstFloor, topFloor))

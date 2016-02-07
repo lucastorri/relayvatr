@@ -9,7 +9,7 @@ import rx.lang.scala.{Observable, Subject}
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
-class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extends Control with StrictLogging {
+class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extends Control with StrictLogging { self =>
 
   private val subject = Subject[SystemEvent]()
   private val awaitingPassengers = mutable.HashMap.empty[Int, FloorQueue]
@@ -83,11 +83,11 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
     private val goingUp = mutable.ListBuffer.empty[Promise[Elevator]]
     private val goingDown = mutable.ListBuffer.empty[Promise[Elevator]]
 
-    def add(call: Call, promise: Promise[Elevator]): Unit = {
+    def add(call: Call, promise: Promise[Elevator]): Unit = synchronized {
       queue(call.direction).append(promise)
     }
 
-    def join(direction: Direction, elevator: Elevator): Unit = {
+    def join(direction: Direction, elevator: Elevator): Unit = synchronized {
       val q = queue(direction)
       q.foreach(_.success(elevator))
       q.clear()
@@ -103,11 +103,11 @@ class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extend
 
     private val floors = mutable.HashMap.empty[Int, Set[Promise[Unit]]]
 
-    def add(passenger: Promise[Unit], destinationFloor: Int): Unit = {
+    def add(passenger: Promise[Unit], destinationFloor: Int): Unit = synchronized {
       floors(destinationFloor) = floors.getOrElse(destinationFloor, Set.empty) + passenger
     }
 
-    def arrive(elevatorFloor: Int): Unit = {
+    def arrive(elevatorFloor: Int): Unit = synchronized {
       for {
         floor <- floors.get(elevatorFloor)
         arrival <- floor
