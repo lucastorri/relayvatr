@@ -59,7 +59,7 @@ object Main extends App {
   def shutdown(): Future[Terminated] = {
     control.shutdown()
     val missingUsers = arrivals.collect { case (trip, result) if !result.isCompleted => trip }
-    missingUsers.foreach(trip => log(s"Missing ${trip.name} [ ${trip.startingFloor} -> ${trip.destinationFloor} ]"))
+    missingUsers.foreach(trip => log(s"Missing ${trip.name}"))
     system.terminate()
   }
 
