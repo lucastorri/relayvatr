@@ -1,12 +1,10 @@
 package relayvatr.scheduler
 
-
 import com.typesafe.scalalogging.StrictLogging
 import relayvatr.control._
 import relayvatr.event._
 
 import scala.collection.mutable
-
 
 class SameDirectionElevator(val id: String, initialFloor: Int = 0) extends ElevatorBehaviour with StrictLogging {
 
@@ -37,7 +35,7 @@ class SameDirectionElevator(val id: String, initialFloor: Int = 0) extends Eleva
   }
 
   override def distanceTo(call: Call): CallDistance = {
-    if (canAnswer(call)) OnTheWay(math.abs(call.floor - currentFloor))
+    if (canAnswer(call)) OnTheWay(math.abs(call.floor - currentFloor) * (pendingCalls.size + pressedFloors.size + 1))
     else CanNotAnswer
   }
 
