@@ -52,7 +52,18 @@ class SameDirectionElevator(val id: String, initialFloor: Int = 0) extends Eleva
         currentDirection = Some(direction)
         arrive(direction)
       case None =>
-        handleNextPending()
+        val destinationFloor = nextPending().floor
+
+        val newDirection = directionOf(destinationFloor)
+        currentDirection = Some(newDirection)
+
+        val (same, opposite) = pendingCalls.partition(isOnSameDirection)
+        pendingCalls = opposite
+
+        addPressed(destinationFloor)
+        same.foreach(call => addPressed(call.floor))
+
+        arrive(newDirection)
       case Some(direction) if pressedFloors.contains(currentFloor) =>
         pressedFloors.remove(currentFloor)
         if (pressedFloors.isEmpty) {
@@ -71,21 +82,6 @@ class SameDirectionElevator(val id: String, initialFloor: Int = 0) extends Eleva
         currentFloor += direction.count
         ElevatorPassing(id, previousFloor, direction)
     }
-  }
-
-  def handleNextPending(): ElevatorLeaving = {
-    val destinationFloor = nextPending().floor
-
-    val newDirection = directionOf(destinationFloor)
-    currentDirection = Some(newDirection)
-
-    val (same, opposite) = pendingCalls.partition(isOnSameDirection)
-    pendingCalls = opposite
-
-    addPressed(destinationFloor)
-    same.foreach(call => addPressed(call.floor))
-
-    leaving(newDirection)
   }
 
   private def nextPending(): Call = {
