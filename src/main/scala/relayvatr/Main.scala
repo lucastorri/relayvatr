@@ -20,7 +20,7 @@ object Main extends App {
   val firstFloor = 0
   val topFloor = 10
   val elevators = 3
-  val totalUsers = 30
+  val totalUsers = 10
 
   val clock = Observable.interval(500.millis).map(_ => ())
   val config = ControlConfig(elevators, new RangeLimitSensor(firstFloor, topFloor))
@@ -28,8 +28,10 @@ object Main extends App {
   val control = new BasicControl(new ClosestElevatorScheduler(config, clock, new SameDirectionElevator(_, firstFloor)))
 
   sys.addShutdownHook {
-    log("Going down")
-    Await.ready(shutdown(), 5.seconds)
+    if (!control.status.running) {
+      log("Going down")
+      Await.ready(shutdown(), 5.seconds)
+    }
   }
 
   log("Starting user interaction")
@@ -47,6 +49,8 @@ object Main extends App {
   Await.ready(Future.sequence(arrivals.map(_._2)), Duration.Inf)
 
   log("Users are gone")
+
+  shutdown()
 
   log("Done")
 
