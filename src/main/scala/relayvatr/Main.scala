@@ -22,7 +22,7 @@ object Main extends App {
   val elevators = 3
   val totalUsers = 10
 
-  val clock = Observable.interval(500.millis).map(_ => ())
+  val clock = Observable.interval(500.millis).map(_ => log("*** *** ***"))
   val config = ControlConfig(elevators, new RangeLimitSensor(firstFloor, topFloor))
 
   val control = new BasicControl(new ClosestElevatorScheduler(config, clock, new SameDirectionElevator(_, firstFloor)))
