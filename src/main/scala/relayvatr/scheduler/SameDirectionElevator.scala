@@ -6,13 +6,19 @@ import relayvatr.event._
 
 import scala.collection.mutable
 
-class SameDirectionElevator(val id: String, initialFloor: Int = 0) extends ElevatorBehaviour with StrictLogging {
+class SameDirectionElevator(
+  val id: String,
+  initialFloor: Int = 0,
+  changeDirectionsAfterNIdleIterations: Int = 3
+) extends ElevatorBehaviour with StrictLogging {
 
   private var currentFloor = initialFloor
   private var currentDirection = Option.empty[Direction]
   private var newDirection = Option.empty[Direction]
   private val pressedFloors = mutable.HashSet.empty[Int]
   private var pendingCalls = mutable.ListBuffer.empty[Call]
+  private var idleIterations = 0
+  private var nextIdleDirection: Direction = Up
 
   override def floor: Int = currentFloor
 
@@ -39,7 +45,18 @@ class SameDirectionElevator(val id: String, initialFloor: Int = 0) extends Eleva
     else CanNotAnswer
   }
 
-  override def move(): Option[ElevatorEvent] = Option {
+  override def move(): Option[ElevatorEvent] = {
+    moveAndReport() match {
+      case Some(state) =>
+        idleIterations = 0
+        Some(state)
+      case None =>
+        idleIterations += 1
+        changeIfIdle()
+    }
+  }
+
+  private def moveAndReport() = Option {
     currentDirection match {
       case None if newDirection.isDefined =>
         currentDirection = newDirection
@@ -81,6 +98,16 @@ class SameDirectionElevator(val id: String, initialFloor: Int = 0) extends Eleva
         val previousFloor = currentFloor
         currentFloor += direction.count
         ElevatorPassing(id, previousFloor, direction)
+    }
+  }
+
+  private def changeIfIdle(): Option[ElevatorArrived] = {
+    if (idleIterations % changeDirectionsAfterNIdleIterations == 0) {
+      val state = arrive(nextIdleDirection)
+      nextIdleDirection = nextIdleDirection.opposite
+      Some(state)
+    } else {
+      None
     }
   }
 
