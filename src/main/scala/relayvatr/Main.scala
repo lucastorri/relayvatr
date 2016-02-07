@@ -38,7 +38,7 @@ object Main extends App {
     val startingFloor = randomFloor
     val destinationFloor = randomFloor
     SingleTrip(startingFloor, destinationFloor)
-  }
+  }.filter(trip => trip.startingFloor != trip.destinationFloor)
 
   val arrivals = users.take(totalUsers).map(_.on(control)).toBlocking.toList
 
