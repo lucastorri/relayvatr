@@ -62,18 +62,17 @@ class ClosestElevatorScheduler(
     }
 
     def answeredToCall(call: Call): Boolean = {
-      val (elevator, distance) = elevators
+      val (elevator, lowestCost) = elevators
         .map(elevator => elevator -> elevator.distanceTo(call))
-        .sortBy { case (_, d) => d }
+        .sortBy { case (_, cost) => cost }
         .head
 
-      if (distance.canAnswer) {
+      if (lowestCost.canAnswer) {
         logger.debug(s"Assigning $call to ${elevator.id}")
         elevator.answer(call)
-        true
-      } else {
-        false
       }
+
+      lowestCost.canAnswer
     }
 
   }

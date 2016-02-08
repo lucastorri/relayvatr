@@ -41,8 +41,8 @@ class SameDirectionElevator(
     answer(Call(floor, directionOf(floor)))
   }
 
-  override def distanceTo(call: Call): CallDistance = {
-    if (state.answer.isDefinedAt(call)) OnTheWay(math.abs(call.floor - floor) * (state.weight + 1))
+  override def distanceTo(call: Call): CallCost = {
+    if (state.answer.isDefinedAt(call)) CanAnswer(math.abs(call.floor - floor) * (state.weight + 1))
     else CanNotAnswer
   }
 
@@ -57,13 +57,19 @@ class SameDirectionElevator(
     logger.trace(msg)
   }
 
-  private def directionOf(toFloor: Int): Direction = {
-    if (toFloor > floor) Up else Down
+  private def directionOf(anotherFloor: Int): Direction = {
+    if (anotherFloor > floor) Up else Down
   }
 
   private def isOnTheWay(state: State, c: Call): Boolean = {
     Set(c.direction, directionOf(c.floor)) == state.direction.toSet
   }
+
+  private def arrive(direction: Direction): Option[ElevatorArrived] = Some(ElevatorArrived(id, floor, direction))
+
+  private def leave(direction: Direction): Option[ElevatorLeaving] = Some(ElevatorLeaving(id, floor, direction))
+
+  private def pass(direction: Direction): Option[ElevatorPassing] = Some(ElevatorPassing(id, floor, direction))
 
   trait State {
     def floor: Int
@@ -94,10 +100,10 @@ class SameDirectionElevator(
     }
     override def move(): (State, Option[ElevatorEvent]) = {
       if (floors.contains(floor)) {
-        if (floors.size == 1) Idle(floor) -> Some(ElevatorArrived(id, floor, to))
-        else Leaving(copy(floor, to, floors - floor)) -> Some(ElevatorArrived(id, floor, to))
+        if (floors.size == 1) Idle(floor) -> arrive(to)
+        else Leaving(copy(floor, to, floors - floor)) -> arrive(to)
       } else {
-        copy(floor = floor + to.count) -> Some(ElevatorPassing(id, floor, to))
+        copy(floor = floor + to.count) -> pass(to)
       }
     }
   }
@@ -107,8 +113,8 @@ class SameDirectionElevator(
     override def weight: Int = 1
     override def answer: PartialFunction[Call, State] = PartialFunction.empty
     override def move(): (State, Option[ElevatorEvent]) = {
-      if (floor == till) Wait(floor, to.opposite) -> Some(ElevatorArrived(id, floor, to.opposite))
-      else copy(floor = floor + to.count) -> Some(ElevatorPassing(id, floor, to))
+      if (floor == till) Wait(floor, to.opposite) -> arrive(to.opposite)
+      else copy(floor = floor + to.count) -> pass(to)
     }
   }
 
@@ -122,7 +128,7 @@ class SameDirectionElevator(
     }
     override def move(): (State, Option[ElevatorEvent]) = {
       val (state, _) = next.move()
-      state -> state.direction.map(ElevatorLeaving(id, floor, _))
+      state -> state.direction.flatMap(leave)
     }
   }
 
@@ -144,7 +150,7 @@ class SameDirectionElevator(
       case c if isOnTheWay(state, c) => copy(floors = floors + c.floor)
     }
     override def move(): (State, Option[ElevatorEvent]) = {
-      if (stay > 0) copy(stay = stay-1) -> Some(ElevatorArrived(id, floor, to))
+      if (stay > 0) copy(stay = stay-1) -> arrive(to)
       else if (floors.nonEmpty) Leaving(GoAndCollect(floor, to, floors - floor)).move()
       else Idle(floor) -> None
     }

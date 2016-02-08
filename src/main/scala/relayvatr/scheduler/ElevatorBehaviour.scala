@@ -15,7 +15,7 @@ trait ElevatorBehaviour {
 
   def press(floor: Int): Unit
 
-  def distanceTo(call: Call): CallDistance
+  def distanceTo(call: Call): CallCost
 
   def move(): Option[ElevatorEvent]
 
