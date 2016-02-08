@@ -2,6 +2,9 @@ package relayvatr.user
 
 import scala.util.Random
 
+/**
+  * Generate fake user names that are associated to `UserTrip`s.
+  */
 object NameGenerator {
 
   val names = Set(

@@ -22,44 +22,44 @@ class SameDirectionElevatorTest extends Test {
   it must "attend two calls on the same floor and direction" in new context {
     elevator.answer(Call(4, Up))
 
-    elevator.distanceTo(Call(4, Up)).canAnswer must be (true)
-    elevator.distanceTo(Call(4, Down)).canAnswer must be (false)
+    elevator.cost(Call(4, Up)).canAnswer must be (true)
+    elevator.cost(Call(4, Down)).canAnswer must be (false)
   }
 
   it must "attend calls going up if calling user is on a higher floor and will go up" in new context {
     elevator.answer(Call(4, Up))
 
-    elevator.distanceTo(Call(6, Up)).canAnswer must be (true)
-    elevator.distanceTo(Call(6, Down)).canAnswer must be (false)
-    elevator.distanceTo(Call(1, Up)).canAnswer must be (false)
-    elevator.distanceTo(Call(1, Down)).canAnswer must be (false)
+    elevator.cost(Call(6, Up)).canAnswer must be (true)
+    elevator.cost(Call(6, Down)).canAnswer must be (false)
+    elevator.cost(Call(1, Up)).canAnswer must be (false)
+    elevator.cost(Call(1, Down)).canAnswer must be (false)
   }
 
   it must "go straight to an upper floor if needs to change direction later" in new context {
     elevator.answer(Call(4, Down))
 
-    elevator.distanceTo(Call(6, Up)).canAnswer must be (false)
-    elevator.distanceTo(Call(6, Down)).canAnswer must be (false)
-    elevator.distanceTo(Call(1, Up)).canAnswer must be (false)
-    elevator.distanceTo(Call(1, Down)).canAnswer must be (false)
+    elevator.cost(Call(6, Up)).canAnswer must be (false)
+    elevator.cost(Call(6, Down)).canAnswer must be (false)
+    elevator.cost(Call(1, Up)).canAnswer must be (false)
+    elevator.cost(Call(1, Down)).canAnswer must be (false)
   }
 
   it must "go straight to a lower floor if needs to change direction later" in new context {
     elevator.answer(Call(2, Up))
 
-    elevator.distanceTo(Call(6, Up)).canAnswer must be (false)
-    elevator.distanceTo(Call(6, Down)).canAnswer must be (false)
-    elevator.distanceTo(Call(1, Up)).canAnswer must be (false)
-    elevator.distanceTo(Call(1, Down)).canAnswer must be (false)
+    elevator.cost(Call(6, Up)).canAnswer must be (false)
+    elevator.cost(Call(6, Down)).canAnswer must be (false)
+    elevator.cost(Call(1, Up)).canAnswer must be (false)
+    elevator.cost(Call(1, Down)).canAnswer must be (false)
   }
 
   it must "attend calls going down if calling user is on a lower floor and will go down" in new context {
     elevator.answer(Call(2, Down))
 
-    elevator.distanceTo(Call(6, Up)).canAnswer must be (false)
-    elevator.distanceTo(Call(6, Down)).canAnswer must be (false)
-    elevator.distanceTo(Call(1, Up)).canAnswer must be (false)
-    elevator.distanceTo(Call(1, Down)).canAnswer must be (true)
+    elevator.cost(Call(6, Up)).canAnswer must be (false)
+    elevator.cost(Call(6, Down)).canAnswer must be (false)
+    elevator.cost(Call(1, Up)).canAnswer must be (false)
+    elevator.cost(Call(1, Down)).canAnswer must be (true)
   }
 
   it must "remain idle if idle" in new context {

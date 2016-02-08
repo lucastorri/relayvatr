@@ -6,14 +6,10 @@ import relayvatr.event._
 import relayvatr.exception.CannotHandleCallException
 
 /**
-  * if user called from an upper floor:
-  *   - and user wants to go down: will go straight and only when descending get others on the way down
-  *   - and user wants to go up: will collect anyone on the way that is going up
-  * if user called from an lower floor:
-  *   - and user wants to go down: will collect anyone on the way that is going down
-  *   - and user wants to go up: will go straight and only when ascending get others on the way up
-  * if user called from the current floor:
-  *   - will go on the direction requested by the first user
+  * An `ElevatorBehaviour` that implements the algorithm described on the README section.
+  *
+  * It is implemented as a state machine, using the [[https://en.wikipedia.org/wiki/State_pattern State pattern]]. Each
+  * state implements the `State` interface and is immutable. Actions to a state result in new `State` instances.
   */
 class SameDirectionElevator(
   val id: String,
@@ -29,10 +25,10 @@ class SameDirectionElevator(
   override def answer(call: Call): Unit = {
     state.answer.lift(call) match {
       case Some(newState) =>
-        log(s"State change on $id: answer($call) = $state -> $newState")
+        logger.trace(s"State change on $id: answer($call) = $state -> $newState")
         state = newState
       case None =>
-        log(s"State change on $id: answer($call) = $state -> -invalid-")
+        logger.trace(s"State change on $id: answer($call) = $state -> -invalid-")
         throw new CannotHandleCallException()
     }
   }
@@ -41,20 +37,16 @@ class SameDirectionElevator(
     answer(Call(floor, directionOf(floor)))
   }
 
-  override def distanceTo(call: Call): CallCost = {
+  override def cost(call: Call): CallCost = {
     if (state.answer.isDefinedAt(call)) CanAnswer(math.abs(call.floor - floor) * (state.weight + 1))
     else CanNotAnswer
   }
 
   override def move(): Option[ElevatorEvent] = {
     val (newState, event) = state.move()
-    log(s"State change on $id: move() = $state -> $newState [${event.mkString}]")
+    logger.trace(s"State change on $id: move() = $state -> $newState [${event.mkString}]")
     state = newState
     event
-  }
-
-  private def log(msg: => String): Unit = {
-    logger.trace(msg)
   }
 
   private def directionOf(anotherFloor: Int): Direction = {
@@ -64,12 +56,6 @@ class SameDirectionElevator(
   private def isOnTheWay(state: State, c: Call): Boolean = {
     Set(c.direction, directionOf(c.floor)) == state.direction.toSet
   }
-
-  private def arrive(direction: Direction): Option[ElevatorArrived] = Some(ElevatorArrived(id, floor, direction))
-
-  private def leave(direction: Direction): Option[ElevatorLeaving] = Some(ElevatorLeaving(id, floor, direction))
-
-  private def pass(direction: Direction): Option[ElevatorPassing] = Some(ElevatorPassing(id, floor, direction))
 
   trait State {
     def floor: Int
@@ -155,5 +141,11 @@ class SameDirectionElevator(
       else Idle(floor) -> None
     }
   }
+
+  private def arrive(direction: Direction): Option[ElevatorArrived] = Some(ElevatorArrived(id, floor, direction))
+
+  private def leave(direction: Direction): Option[ElevatorLeaving] = Some(ElevatorLeaving(id, floor, direction))
+
+  private def pass(direction: Direction): Option[ElevatorPassing] = Some(ElevatorPassing(id, floor, direction))
 
 }

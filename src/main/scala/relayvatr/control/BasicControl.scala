@@ -9,6 +9,15 @@ import rx.lang.scala.{Observable, Subject}
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
+/**
+  * A `Control` where users are queued for their calls and assigned to the right elevators when they arrive on their
+  * the user floor's and are going on the direction specified by the user.
+  *
+  * This control subscribes to the scheduler events to know when an elevator arrived.
+  *
+  * @param scheduler a scheduler that organizes the elevators
+  * @param exec future handler
+  */
 class BasicControl(scheduler: Scheduler)(implicit exec: ExecutionContext) extends Control with StrictLogging { self =>
 
   private val subject = Subject[SystemEvent]()

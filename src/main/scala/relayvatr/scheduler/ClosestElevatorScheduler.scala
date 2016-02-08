@@ -9,6 +9,19 @@ import rx.lang.scala.{Observable, Subject}
 
 import scala.collection.mutable
 
+/**
+  * An `Scheduler` where each elevator can implement their own behaviour and decide if they will attend calls. The
+  * specific behaviour is given by implementations of `ElevatorBehaviour`.
+  *
+  * On every cycle, user actions are queued and by the cycle end, the closest elevator to a call is selected. If no
+  * elevator can attend an specific call, they are re-queued and a new attempt to attend them will be done on the next
+  * cycle.
+  *
+  * @param config configurations used by this system
+  * @param clock the clock generator that will be used to follow simulation cycles
+  * @param elevatorFactory a function to create new elevator instances after a given id
+  * @param system the actor system that will be used internally by the scheduler
+  */
 class ClosestElevatorScheduler(
   config: ControlConfig,
   clock: Observable[Unit],
@@ -68,7 +81,7 @@ class ClosestElevatorScheduler(
 
     def answeredToCall(call: Call): Boolean = {
       val (elevator, lowestCost) = elevators.values.toSeq
-        .map(elevator => elevator -> elevator.distanceTo(call))
+        .map(elevator => elevator -> elevator.cost(call))
         .sortBy { case (_, cost) => cost }
         .head
 
