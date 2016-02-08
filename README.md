@@ -1,11 +1,11 @@
 # Relayvatr
 
-An Elevator Control System simulator.
+An Elevator Control System.
 
 
 ## Overview
 
-On each iteration, an elevator can be performing one of the following operations:
+The simulator runs iteratively. On each iteration, an elevator can be performing one of the following operations:
 
   * Being idle;
   * Passing through a floor without stopping;
@@ -22,9 +22,9 @@ The behaviour determining which elevator will handle a given call and how an ele
 1. `ClosestElevatorScheduler`;
 2. `SameDirectionElevator`.
 
-Each elevator available is mapped to an instance of `SameDirectionElevator`. On each iteration of the system, the `ClosestElevatorScheduler` asks each elevator to evaluate how well they can handle each of the open user calls. Finally, it decides the ones that seem to be best for each call. If a call cannot be handled straight away, a new attempt will be made on the next iteration.
+Each elevator available is mapped to an instance of `SameDirectionElevator`. On each iteration of the system, the `ClosestElevatorScheduler` asks each of them to evaluate how well they can handle each of the open user calls. Finally, it decides the ones that seem to be best fit for each call. If a call cannot be handled straight away, a new attempt will be made on the next iteration.
 
-Briefly described, the elevators decide if they can handle a user call based on the direction they are going and how close the elevator is to the user.  For the first, if the user is:
+Briefly described, the elevators decide if they can handle a user call based on the direction they are going and how close is the elevator to the user. For the first, whenever an elevator is idle and the user is:
 
   *  on an upper floor:
      - and wants to go down: the car will go straight to the user floor, and only when descending get others on the way down;
@@ -38,7 +38,7 @@ Briefly described, the elevators decide if they can handle a user call based on 
 Furthermore, two metrics are used to compute the associate closeness, or cost, between an elevator and a user:
 
 1. The actual distance between the car and the user (floors);
-2. Its load (number of passengers already on the car).
+2. The car's load (number of passengers already on the car).
 
 When compared to a simple `first-come, first-served` (FCFS), the current implementation can use the closest possible elevator to the user, distribute load between cars, and will try to pick the largest number of users on its way.
 
