@@ -29,10 +29,10 @@ class SameDirectionElevator(
   override def answer(call: Call): Unit = {
     state.answer.lift(call) match {
       case Some(newState) =>
-        log(s"State change on $id answer($call) : $state -> $newState")
+        log(s"State change on $id: answer($call) = $state -> $newState")
         state = newState
       case None =>
-        log(s"State change on $id answer($call) : $state -> -invalid-")
+        log(s"State change on $id: answer($call) = $state -> -invalid-")
         throw new CannotHandleCallException()
     }
   }
@@ -48,7 +48,7 @@ class SameDirectionElevator(
 
   override def move(): Option[ElevatorEvent] = {
     val (newState, event) = state.move()
-    log(s"State change on $id move() : $state -> $newState [${event.mkString}]")
+    log(s"State change on $id: move() = $state -> $newState [${event.mkString}]")
     state = newState
     event
   }
@@ -77,7 +77,7 @@ class SameDirectionElevator(
     override def direction: Option[Direction] = None
     override def weight: Int = 0
     override def answer: PartialFunction[Call, State] = {
-      case c if c.floor == floor => Arrived(floor, c.direction)
+      case c if c.floor == floor => Arrived(floor, c.direction, Set.empty)
       case c if directionOf(c.floor) == c.direction => Leaving(GoAndCollect(floor, c.direction, Set(c.floor)))
       case c => Leaving(GoAndInvert(floor, directionOf(c.floor), c.floor))
     }
@@ -137,14 +137,15 @@ class SameDirectionElevator(
     }
   }
 
-  case class Arrived(floor: Int, to: Direction, stay: Int = 1) extends State {
+  case class Arrived(floor: Int, to: Direction, floors: Set[Int], stay: Int = 1) extends State {
     override def direction: Option[Direction] = Some(to)
     override def weight: Int = 0
     override def answer: PartialFunction[Call, State] = {
-      case c if isOnTheWay(state, c) => Leaving(GoAndCollect(floor, to, Set(c.floor)))
+      case c if isOnTheWay(state, c) => copy(floors = floors + c.floor)
     }
     override def move(): (State, Option[ElevatorEvent]) = {
       if (stay > 0) copy(stay = stay-1) -> Some(ElevatorArrived(id, floor, to))
+      else if (floors.nonEmpty) Leaving(GoAndCollect(floor, to, floors - floor)).move()
       else Idle(floor) -> None
     }
   }

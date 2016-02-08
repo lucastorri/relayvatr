@@ -66,7 +66,7 @@ class SameDirectionElevatorTest extends Test {
     elevator.move() must equal (Option.empty)
   }
 
-  it must "announce arrival if idle on call floor" in new context {
+  it must "announce arrival down if idle on call floor" in new context {
     elevator.answer(Call(3, Down))
 
     elevator.move() must equal (Option(ElevatorArrived(id, 3, Down)))
@@ -74,6 +74,17 @@ class SameDirectionElevatorTest extends Test {
     elevator.move() must equal(Option(ElevatorLeaving(id, 3, Down)))
     elevator.move() must equal(Option(ElevatorPassing(id, 2, Down)))
     elevator.move() must equal(Option(ElevatorArrived(id, 1, Down)))
+    elevator.move() must equal (Option.empty)
+  }
+
+  it must "announce arrival up if idle on call floor" in new context {
+    elevator.answer(Call(3, Up))
+
+    elevator.move() must equal (Option(ElevatorArrived(id, 3, Up)))
+    elevator.press(5)
+    elevator.move() must equal(Option(ElevatorLeaving(id, 3, Up)))
+    elevator.move() must equal(Option(ElevatorPassing(id, 4, Up)))
+    elevator.move() must equal(Option(ElevatorArrived(id, 5, Up)))
     elevator.move() must equal (Option.empty)
   }
 

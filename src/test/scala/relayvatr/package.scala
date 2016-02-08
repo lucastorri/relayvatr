@@ -18,7 +18,7 @@ package object relayvatr {
       executeWithTimestamps(trip).map(_.event)
 
     def executeWithTimestamps(trip: UserTrip): Seq[TimestampedEvent] = {
-      Await.ready(trip.on(system), 10.seconds)
+      Await.ready(trip.on(system), 3.seconds)
       collected.toSeq
     }
 
