@@ -10,6 +10,9 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.Random
 
+/**
+  * Simulates the system by generating random users and submitting them
+  */
 object Main extends App {
 
   log("Configuring control")
