@@ -1,6 +1,6 @@
 # Relayvatr
 
-An Elevator Control System.
+An elevator simulator.
 
 
 ## Overview
@@ -84,3 +84,7 @@ A zip file of the project can be generated with:
 ```bash
 git archive HEAD --format zip -o revalyvatr.zip
 ```
+
+## Known Issues
+
+* If you decrease the clock cycle too much on `relayvatr.Main`, the user (or the `Future` handling that represents him, to be precise) might miss the arrival of the elevator because a new cycle just passed. When that happens, the scheduler will consider to have attended that call. If no elevator stops on the user floor, matching the direction of travel, the user ends up on a state where no car will pick him up.

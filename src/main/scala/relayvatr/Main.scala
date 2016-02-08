@@ -24,7 +24,7 @@ object Main extends App {
   val topFloor = 60
   val elevators = 20
   val totalUsers = 1000
-  val clockInterval = 100.millis
+  val clockInterval = 200.millis
   val intervalBetweenUsers = 10.millis
 
   val clock = Observable.interval(clockInterval).map(_ => log("*** *** ***"))
