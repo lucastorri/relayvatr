@@ -1,6 +1,6 @@
 # Relayvatr
 
-An Elevator Control System.
+An Elevator Control System simulator.
 
 
 ## Overview
