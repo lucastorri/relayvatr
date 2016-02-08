@@ -13,6 +13,6 @@ sealed trait CallCost extends Ordered[CallCost] {
 
 }
 
-case class CanAnswer(cost: Int) extends CallCost
+case class CanAnswer(cost: Double) extends CallCost
 
 case object CanNotAnswer extends CallCost
