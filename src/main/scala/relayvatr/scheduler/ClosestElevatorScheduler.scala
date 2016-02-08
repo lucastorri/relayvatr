@@ -16,15 +16,15 @@ class ClosestElevatorScheduler(
 )(implicit system: ActorSystem) extends Scheduler with StrictLogging {
 
   private val handler = system.actorOf(Props(new Handler))
-  private val subject = Subject[ElevatorEvent]()
+  private val eventsSubject = Subject[ElevatorEvent]()
   private var awaitingCalls = mutable.ListBuffer.empty[Call]
-  private val elevators = (1 to config.elevators).map(i => elevatorFactory(s"elevator-$i"))
+  private val elevators = (1 to config.elevators).map(newElevator).toMap
   private val clockSubscription = clock.subscribe(_ => handler ! 'clock)
 
   override def status: Set[ElevatorStatus] =
-    elevators.map(e => ElevatorStatus(e.floor, e.direction)).toSet
+    elevators.values.map(e => ElevatorStatus(e.floor, e.direction)).toSet
 
-  override def events: Observable[ElevatorEvent] = subject
+  override def events: Observable[ElevatorEvent] = eventsSubject
 
   override def handle(action: Action): Unit = {
     logger.debug(s"Action $action")
@@ -38,11 +38,16 @@ class ClosestElevatorScheduler(
   override def shutdown(): Unit = {
     clockSubscription.unsubscribe()
     system.stop(handler)
-    subject.onCompleted()
+    eventsSubject.onCompleted()
   }
 
   private def isInvalidFloor(floor: Int): Boolean =
     !config.limit.canGoTo(floor)
+
+  private def newElevator(i: Int): (String, ElevatorBehaviour) = {
+    val id = s"elevator-$i"
+    id -> elevatorFactory(id)
+  }
 
   private class Handler extends Actor {
 
@@ -51,18 +56,18 @@ class ClosestElevatorScheduler(
         act(a)
       case 'clock =>
         awaitingCalls = awaitingCalls.filterNot(answeredToCall)
-        elevators.flatMap(_.move()).foreach(subject.onNext)
+        elevators.values.flatMap(_.move()).foreach(eventsSubject.onNext)
     }
 
     val act: PartialFunction[Action, Unit] = {
       case call: Call =>
         awaitingCalls += call
       case goto: GoTo =>
-        elevators.find(_.id == goto.elevatorId).foreach(_.press(goto.floor))
+        elevators.get(goto.elevatorId).foreach(_.press(goto.floor))
     }
 
     def answeredToCall(call: Call): Boolean = {
-      val (elevator, lowestCost) = elevators
+      val (elevator, lowestCost) = elevators.values.toSeq
         .map(elevator => elevator -> elevator.distanceTo(call))
         .sortBy { case (_, cost) => cost }
         .head
