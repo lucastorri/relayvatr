@@ -77,3 +77,10 @@ After running the following command, the index page will be available at `target
 ./sbt doc
 ```
 
+### Project Zip
+
+A zip file of the project can be generated with:
+
+```bash
+git archive HEAD --format zip -o revalyvatr.zip
+```
