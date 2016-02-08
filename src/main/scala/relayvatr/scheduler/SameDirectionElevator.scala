@@ -29,10 +29,10 @@ class SameDirectionElevator(
   override def answer(call: Call): Unit = {
     state.answer.lift(call) match {
       case Some(newState) =>
-        log(s"answer($call) : $state -> $newState")
+        log(s"State change on $id answer($call) : $state -> $newState")
         state = newState
       case None =>
-        log(s"answer($call) : $state -> -invalid-")
+        log(s"State change on $id answer($call) : $state -> -invalid-")
         throw new CannotHandleCallException()
     }
   }
@@ -48,7 +48,7 @@ class SameDirectionElevator(
 
   override def move(): Option[ElevatorEvent] = {
     val (newState, event) = state.move()
-    log(s"move() : $state -> $newState [${event.mkString}]")
+    log(s"State change on $id move() : $state -> $newState [${event.mkString}]")
     state = newState
     event
   }
@@ -90,7 +90,7 @@ class SameDirectionElevator(
     override def direction: Option[Direction] = Some(to)
     override def weight: Int = floors.size
     override def answer: PartialFunction[Call, State] = {
-      case c if isOnTheWay(this, c) => copy(floors = floors + c.floor)
+      case c if floor != c.floor && isOnTheWay(this, c) => copy(floors = floors + c.floor)
     }
     override def move(): (State, Option[ElevatorEvent]) = {
       if (floors.contains(floor)) {
