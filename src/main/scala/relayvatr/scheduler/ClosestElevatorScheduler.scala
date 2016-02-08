@@ -50,7 +50,7 @@ class ClosestElevatorScheduler(
       case a: Action =>
         act(a)
       case 'clock =>
-        awaitingCalls = awaitingCalls.filterNot(answeredToCall)
+        awaitingCalls = awaitingCalls.distinct.filterNot(answeredToCall)
         elevators.flatMap(_.move()).foreach(subject.onNext)
     }
 
