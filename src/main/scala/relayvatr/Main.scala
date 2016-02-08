@@ -1,6 +1,6 @@
 package relayvatr
 
-import akka.actor.{Terminated, ActorSystem}
+import akka.actor.{ActorSystem, Terminated}
 import relayvatr.control.{BasicControl, ControlConfig, RangeLimitSensor}
 import relayvatr.scheduler.{ClosestElevatorScheduler, SameDirectionElevator}
 import relayvatr.user.SingleTrip

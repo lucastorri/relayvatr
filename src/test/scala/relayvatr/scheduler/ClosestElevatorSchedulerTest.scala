@@ -1,10 +1,11 @@
 package relayvatr.scheduler
 
 import relayvatr._
-import relayvatr.control.{RangeLimitSensor, ControlConfig, BasicControl}
-import relayvatr.event.{ElevatorEvent, ElevatorArrived}
+import relayvatr.control.{BasicControl, ControlConfig, RangeLimitSensor}
+import relayvatr.event.{ElevatorArrived, ElevatorEvent}
 import relayvatr.user.{CombinedTrips, SingleTrip}
 import rx.lang.scala.Observable
+
 import scala.concurrent.duration._
 
 class ClosestElevatorSchedulerTest extends Test {

@@ -21,7 +21,7 @@ class BasicControlTest extends Test {
     control.status.running must be (false)
   }
 
-  it must "return it's status" in {
+  it must "return its status" in {
     val control = new BasicControl(NoOpScheduler)
 
     control.status must equal(ControlStatus(running = true, NoOpScheduler.status))

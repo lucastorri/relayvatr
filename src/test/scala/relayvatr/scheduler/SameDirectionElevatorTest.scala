@@ -1,8 +1,8 @@
 package relayvatr.scheduler
 
 import relayvatr.Test
-import relayvatr.control.{Up, Down}
-import relayvatr.event.{ElevatorPassing, ElevatorArrived, ElevatorLeaving, Call}
+import relayvatr.control.{Down, Up}
+import relayvatr.event.{Call, ElevatorArrived, ElevatorLeaving, ElevatorPassing}
 import relayvatr.exception.CannotHandleCallException
 
 class SameDirectionElevatorTest extends Test {
@@ -115,12 +115,6 @@ class SameDirectionElevatorTest extends Test {
   trait context {
     val id = "fake-1"
     val elevator = new SameDirectionElevator(id, initialFloor = 3)
-  }
-
-  implicit class IntTimes(i: Int) {
-
-    def times[T](block: => T): Seq[T] = (0 until i).map(_ => block).toList
-
   }
 
 }
